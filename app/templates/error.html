@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Error {{ code }}{% endblock %}
+{% block auth %}
+<div class="card">
+  <div class="brand"><span class="logo">HB</span>HBntory</div>
+  <h1>Error {{ code }}</h1>
+  <p class="muted">{{ message }}</p>
+  <a class="btn btn-primary w-full" href="/">Back to home</a>
+</div>
+{% endblock %}

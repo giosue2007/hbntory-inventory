@@ -1,9 +1,21 @@
 {% extends "base.html" %}
-{% block content %}
-<h1>Log in</h1>
-<form method="post" action="/login">
-  <p><label>Username <input name="username" required></label></p>
-  <p><label>Password <input name="password" type="password" required></label></p>
-  <button type="submit">Log in</button>
-</form>
+{% block title %}Sign in{% endblock %}
+{% block auth %}
+<div class="card">
+  <div class="brand"><span class="logo">HB</span>HBntory</div>
+  <h1>Sign in</h1>
+  <p class="muted">Backoffice for branch staff and administrators.</p>
+  {% if error %}<div class="alert alert-bad">{{ error }}</div>{% endif %}
+  <form method="post" action="/login">
+    <div class="field">
+      <label for="username">Username</label>
+      <input id="username" name="username" autocomplete="username" required autofocus>
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+    </div>
+    <button type="submit" class="btn btn-primary w-full">Sign in</button>
+  </form>
+</div>
 {% endblock %}

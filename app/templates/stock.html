@@ -1,24 +1,65 @@
 {% extends "base.html" %}
+{% block title %}Stock{% endblock %}
 {% block content %}
-<h1>Stock – {{ user.branch.name }}</h1>
-<table>
-  <tr><th>Product id</th><th>Name</th><th>Quantity</th></tr>
-  {% for row in rows %}
-  <tr><td>{{ row.product_id }}</td><td>{{ row.name }}</td><td>{{ row.quantity }}</td></tr>
-  {% endfor %}
-</table>
+{% set low = 10 %}
+<div class="page-head">
+  <h1>Stock · {{ user.branch.name }}</h1>
+  <p>Quantities of your branch. Product names come live from the Product API.</p>
+</div>
 
-<h2>Add stock</h2>
-<form class="inline" method="post" action="/stock/add">
-  <input name="product_id" placeholder="Product id" required>
-  <input name="quantity" type="number" min="1" placeholder="Quantity" required>
-  <button type="submit">Add</button>
-</form>
+<div class="stats">
+  <div class="stat"><span>Products</span><strong>{{ rows|length }}</strong></div>
+  <div class="stat"><span>Units in stock</span><strong>{{ rows|sum(attribute="quantity") }}</strong></div>
+  <div class="stat"><span>Low stock</span><strong>{{ rows|selectattr("quantity", "gt", 0)|selectattr("quantity", "lt", low)|list|length }}</strong></div>
+  <div class="stat"><span>Out of stock</span><strong>{{ rows|selectattr("quantity", "eq", 0)|list|length }}</strong></div>
+</div>
 
-<h2>Remove stock</h2>
-<form class="inline" method="post" action="/stock/remove">
-  <input name="product_id" placeholder="Product id" required>
-  <input name="quantity" type="number" min="1" placeholder="Quantity" required>
-  <button type="submit">Remove</button>
-</form>
+<div class="card table-card">
+  {% if rows %}
+  <table>
+    <tr><th>Product id</th><th>Name</th><th class="num">Quantity</th><th>Status</th></tr>
+    {% for row in rows %}
+    <tr>
+      <td>{{ row.product_id }}</td>
+      <td class="{{ 'muted' if row.name.startswith('(') }}">{{ row.name }}</td>
+      <td class="num">{{ row.quantity }}</td>
+      <td>
+        {% if row.quantity == 0 %}<span class="badge badge-bad">Out of stock</span>
+        {% elif row.quantity < low %}<span class="badge badge-warn">Low stock</span>
+        {% else %}<span class="badge badge-ok">In stock</span>{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p class="empty">No stock yet. Add a first product below.</p>
+  {% endif %}
+</div>
+
+<div class="grid-2">
+  <form class="card" method="post" action="/stock/add">
+    <h2>Add stock</h2>
+    <div class="field">
+      <label for="add-product">Product id</label>
+      <input id="add-product" name="product_id" required>
+    </div>
+    <div class="field">
+      <label for="add-quantity">Quantity</label>
+      <input id="add-quantity" name="quantity" type="number" min="1" required>
+    </div>
+    <button type="submit" class="btn btn-primary w-full">Add to stock</button>
+  </form>
+  <form class="card" method="post" action="/stock/remove">
+    <h2>Remove stock</h2>
+    <div class="field">
+      <label for="remove-product">Product id</label>
+      <input id="remove-product" name="product_id" required>
+    </div>
+    <div class="field">
+      <label for="remove-quantity">Quantity</label>
+      <input id="remove-quantity" name="quantity" type="number" min="1" required>
+    </div>
+    <button type="submit" class="btn w-full">Remove from stock</button>
+  </form>
+</div>
 {% endblock %}

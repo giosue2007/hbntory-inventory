@@ -3,30 +3,179 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>HBntory Backoffice</title>
+  <title>{% block title %}Backoffice{% endblock %} · HBntory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 760px;
-           margin: 40px auto; padding: 0 16px; color: #1d2430; }
-    header { display: flex; justify-content: space-between;
-             align-items: center; margin-bottom: 24px; }
-    table { border-collapse: collapse; width: 100%; margin: 16px 0; }
-    th, td { border-bottom: 1px solid #d8dde6; padding: 8px; text-align: left; }
-    form.inline { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
-    input, button { padding: 6px 10px; font: inherit; }
-    .error { background: #fde8e8; color: #9b1c1c; padding: 10px; }
+    :root {
+      --bg: #f4f6f8; --surface: #ffffff; --border: #e1e5ea;
+      --text: #15202b; --muted: #627080;
+      --accent: #1d6b57; --accent-hover: #165646; --accent-soft: #e3f0eb;
+      --side: #0f241e; --side-text: #b9cbc4;
+      --ok: #1b7a4a; --ok-soft: #e4f4ea;
+      --warn: #98590a; --warn-soft: #fcf0dc;
+      --bad: #b3261e; --bad-soft: #fbe8e6;
+      --radius: 10px; --shadow: 0 1px 2px rgba(16, 24, 32, .06);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0e1317; --surface: #151c21; --border: #253039;
+        --text: #e5eaee; --muted: #92a0ab;
+        --accent: #3aa987; --accent-hover: #55bf9d; --accent-soft: #16302a;
+        --side: #0a0f12; --side-text: #a3b4ae;
+        --ok: #4cc08a; --ok-soft: #13301f;
+        --warn: #e2a54a; --warn-soft: #33260f;
+        --bad: #ef6f66; --bad-soft: #3a1714;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text);
+           font: 14px/1.5 "Inter", system-ui, sans-serif; }
+    a { color: inherit; text-decoration: none; }
+    h1 { font-size: 22px; margin: 0; letter-spacing: -.01em; }
+    h2 { font-size: 15px; margin: 0 0 14px; }
+    .app { display: grid; grid-template-columns: 232px 1fr; min-height: 100vh; }
+    .sidebar { background: var(--side); color: var(--side-text);
+               padding: 20px 14px; display: flex; flex-direction: column;
+               gap: 6px; }
+    .brand { display: flex; align-items: center; gap: 10px; color: #fff;
+             font-weight: 700; font-size: 16px; padding: 0 8px 18px; }
+    .logo { display: grid; place-items: center; width: 32px; height: 32px;
+            border-radius: 8px; background: var(--accent); color: #fff;
+            font-size: 12px; }
+    .nav a { display: block; padding: 8px 10px; border-radius: 8px; }
+    .nav a:hover, .nav a.active { background: rgba(255, 255, 255, .08);
+                                  color: #fff; }
+    .me { margin-top: auto; display: flex; gap: 10px; align-items: center;
+          padding: 12px 8px; border-top: 1px solid rgba(255, 255, 255, .1); }
+    .me strong { color: #fff; }
+    .me small { display: block; }
+    .avatar { display: grid; place-items: center; flex: none; width: 32px;
+              height: 32px; border-radius: 50%; background: var(--accent-soft);
+              color: var(--accent); font-size: 12px; font-weight: 600; }
+    .content { padding: 32px; width: 100%; max-width: 1080px; }
+    .page-head { margin-bottom: 24px; }
+    .page-head p { margin: 4px 0 0; color: var(--muted); }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+             margin-bottom: 20px; }
+    .stat, .card { background: var(--surface); border: 1px solid var(--border);
+                   border-radius: var(--radius); box-shadow: var(--shadow); }
+    .stat { padding: 14px 16px; }
+    .stat span { color: var(--muted); font-size: 12px; }
+    .stat strong { display: block; font-size: 24px;
+                   font-variant-numeric: tabular-nums; }
+    .card { padding: 20px; margin-bottom: 20px; }
+    .table-card { padding: 4px 8px; overflow-x: auto; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-2 > .card { margin-bottom: 0; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; color: var(--muted); font-size: 12px;
+         font-weight: 500; text-transform: uppercase; letter-spacing: .04em;
+         padding: 12px; border-bottom: 1px solid var(--border); }
+    td { padding: 12px; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: 0; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .badge { display: inline-block; padding: 2px 9px; border-radius: 999px;
+             font-size: 12px; font-weight: 500; white-space: nowrap; }
+    .badge-ok { background: var(--ok-soft); color: var(--ok); }
+    .badge-warn { background: var(--warn-soft); color: var(--warn); }
+    .badge-bad { background: var(--bad-soft); color: var(--bad); }
+    .badge-off { color: var(--muted); border: 1px solid var(--border); }
+    .muted { color: var(--muted); }
+    .who { display: flex; align-items: center; gap: 10px; font-weight: 500; }
+    .field { margin-bottom: 14px; }
+    label { display: block; font-size: 13px; font-weight: 500;
+            margin-bottom: 6px; }
+    input, select { width: 100%; padding: 9px 11px; font: inherit;
+                    color: var(--text); background: var(--surface);
+                    border: 1px solid var(--border); border-radius: 8px; }
+    input:focus, select:focus { outline: 3px solid var(--accent-soft);
+                                border-color: var(--accent); }
+    .btn { display: inline-flex; align-items: center; justify-content: center;
+           padding: 9px 14px; font: inherit; font-weight: 600;
+           border-radius: 8px; border: 1px solid var(--border);
+           background: var(--surface); color: var(--text); cursor: pointer; }
+    .btn:hover { border-color: var(--muted); }
+    .btn:focus-visible { outline: 3px solid var(--accent-soft); }
+    .btn-primary { background: var(--accent); border-color: var(--accent);
+                   color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover);
+                         border-color: var(--accent-hover); }
+    .btn-danger { color: var(--bad); }
+    .btn-danger:hover { background: var(--bad-soft); border-color: var(--bad); }
+    .btn-sm { padding: 5px 10px; font-size: 13px; }
+    .btn-side { background: transparent; color: var(--side-text);
+                border-color: rgba(255, 255, 255, .15); }
+    .w-full { width: 100%; }
+    .row { display: flex; gap: 8px; }
+    .alert { padding: 11px 14px; border-radius: 8px; margin-bottom: 20px;
+             font-weight: 500; }
+    .alert-ok { background: var(--ok-soft); color: var(--ok); }
+    .alert-bad { background: var(--bad-soft); color: var(--bad); }
+    .manage summary { list-style: none; }
+    .manage summary::-webkit-details-marker { display: none; }
+    .manage[open] summary { border-color: var(--accent); }
+    .manage-panel { display: grid; gap: 8px; width: 290px; padding: 12px;
+                    margin: 10px 0 0 auto; text-align: left;
+                    background: var(--bg); border: 1px solid var(--border);
+                    border-radius: var(--radius); }
+    .empty { text-align: center; padding: 32px; color: var(--muted); }
+    .auth { min-height: 100vh; display: grid; place-items: center;
+            padding: 24px 16px; }
+    .auth .card { width: 100%; max-width: 380px; padding: 28px; }
+    .auth .brand { color: var(--text); padding: 0 0 20px; }
+    .auth p { margin: 6px 0 20px; }
+    @media (max-width: 860px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { flex-direction: row; flex-wrap: wrap; align-items: center;
+                 padding: 12px 16px; }
+      .brand { padding: 0; margin-right: auto; }
+      .me { display: none; }
+      .content { padding: 20px 16px; }
+      th, td { padding: 10px 8px; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <strong>HBntory Backoffice</strong>
-    {% if user %}
+{% set done = request.query_params.get("done") %}
+{% set notices = {"added": "Stock added.", "removed": "Stock removed.",
+                  "saved": "Changes saved."} %}
+{% if user %}
+<div class="app">
+  <aside class="sidebar">
+    <a class="brand" href="/"><span class="logo">HB</span>HBntory</a>
+    <nav class="nav">
+      {% if user.role == "admin" %}
+      <a class="active" href="/admin/users">Users</a>
+      {% else %}
+      <a class="active" href="/stock">Stock</a>
+      {% endif %}
+    </nav>
+    <div class="me">
+      <span class="avatar">{{ user.username[:2]|upper }}</span>
+      <div>
+        <strong>{{ user.username }}</strong>
+        <small>{{ user.role|capitalize }}{% if user.branch %} · {{ user.branch.name }}{% endif %}</small>
+      </div>
+    </div>
     <form method="post" action="/logout">
-      {{ user.username }} ({{ user.role }})
-      <button type="submit">Log out</button>
+      <button type="submit" class="btn btn-sm btn-side w-full">Log out</button>
     </form>
+  </aside>
+  <main class="content">
+    {% if error %}
+    <div class="alert alert-bad">{{ error }}</div>
+    {% elif done in notices %}
+    <div class="alert alert-ok">{{ notices[done] }}</div>
     {% endif %}
-  </header>
-  {% if error %}<p class="error">{{ error }}</p>{% endif %}
-  {% block content %}{% endblock %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% else %}
+<main class="auth">{% block auth %}{% endblock %}</main>
+{% endif %}
 </body>
 </html>

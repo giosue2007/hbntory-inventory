@@ -97,7 +97,7 @@ def run_user_action(request, admin, session, action, *args):
     except UserError as error:
         session.rollback()
         return users_page(request, admin, session, str(error), 400)
-    return RedirectResponse("/admin/users", status_code=303)
+    return RedirectResponse("/admin/users?done=saved", status_code=303)
 
 
 @app.get("/admin/users")
@@ -202,7 +202,7 @@ def stock_add(request: Request, product_id: str = Form(...),
     except (StockError, ProductAPIError) as error:
         session.rollback()
         return stock_page(request, user, session, str(error), 400)
-    return RedirectResponse("/stock", status_code=303)
+    return RedirectResponse("/stock?done=added", status_code=303)
 
 
 @app.post("/stock/remove")
@@ -217,4 +217,20 @@ def stock_remove(request: Request, product_id: str = Form(...),
     except StockError as error:
         session.rollback()
         return stock_page(request, user, session, str(error), 400)
-    return RedirectResponse("/stock", status_code=303)
+    return RedirectResponse("/stock?done=removed", status_code=303)
+
+
+@app.exception_handler(403)
+@app.exception_handler(404)
+def error_page(request: Request, exc):
+    """
+    Show a clean error page instead of raw JSON.
+    """
+    if exc.status_code == 403:
+        message = exc.detail
+    else:
+        message = "This page does not exist."
+    return templates.TemplateResponse(
+        request, "error.html",
+        {"code": exc.status_code, "message": message},
+        status_code=exc.status_code)

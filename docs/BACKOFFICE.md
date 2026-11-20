@@ -34,3 +34,14 @@ Product details are never stored. When the stock page needs a product
 name, `get_product()` (`app/product_api.py`) calls
 `GET {PRODUCT_API_URL}/products/{id}` live. If the API is down, the page
 still works and shows "(Product API unavailable)".
+
+## Interface
+
+- Sidebar layout with the user's name, role and branch, and a log out
+  button. On a phone the sidebar becomes a top bar.
+- Key figures at the top of each page, status badges (In stock, Low
+  stock, Out of stock; Active, Deleted) and clear empty states.
+- A green message confirms every action ("Stock added.", "Changes
+  saved."); a red message explains every refusal.
+- Errors 403 and 404 show a clean page instead of raw JSON.
+- Light and dark themes follow the system setting.

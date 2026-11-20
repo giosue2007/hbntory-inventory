@@ -2,9 +2,9 @@
 {% block content %}
 <h1>Stock – {{ user.branch.name }}</h1>
 <table>
-  <tr><th>Product id</th><th>Quantity</th></tr>
-  {% for line in lines %}
-  <tr><td>{{ line.product_id }}</td><td>{{ line.quantity }}</td></tr>
+  <tr><th>Product id</th><th>Name</th><th>Quantity</th></tr>
+  {% for row in rows %}
+  <tr><td>{{ row.product_id }}</td><td>{{ row.name }}</td><td>{{ row.quantity }}</td></tr>
   {% endfor %}
 </table>
 

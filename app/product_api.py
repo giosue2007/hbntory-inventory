@@ -35,3 +35,21 @@ def product_exists(product_id):
         return False
     raise ProductAPIError(
         f"Product API returned status {response.status_code}")
+
+
+def get_product(product_id):
+    """
+    Return the product details from the Product API as a dict,
+    or None if it answers 404. Nothing is stored locally.
+    """
+    url = f"{PRODUCT_API_URL.rstrip('/')}/products/{product_id}"
+    try:
+        response = httpx.get(url, timeout=5)
+    except httpx.HTTPError as error:
+        raise ProductAPIError(f"Product API unreachable: {error}") from error
+    if response.status_code == 404:
+        return None
+    if response.status_code != 200:
+        raise ProductAPIError(
+            f"Product API returned status {response.status_code}")
+    return response.json()

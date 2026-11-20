@@ -156,3 +156,65 @@ def admin_delete_user(request: Request, user_id: int,
 def product_name(product_id):
     """
     Read the product name from the Product API (never stored locally).
+    """
+    try:
+        product = get_product(product_id)
+    except ProductAPIError:
+        return "(Product API unavailable)"
+    if product is None:
+        return "(unknown product)"
+    return product.get("name") or product.get("title") or "-"
+
+
+def stock_page(request, user, session, error=None, status_code=200):
+    """
+    Render the stock of the user's own branch, with product names
+    read live from the Product API.
+    """
+    lines = session.query(Stock).filter_by(
+        branch_id=user.branch_id).order_by(Stock.product_id).all()
+    rows = [{"product_id": line.product_id, "quantity": line.quantity,
+             "name": product_name(line.product_id)} for line in lines]
+    return templates.TemplateResponse(
+        request, "stock.html",
+        {"user": user, "rows": rows, "error": error},
+        status_code=status_code)
+
+
+@app.get("/stock")
+def stock(request: Request, user=Depends(require_staff),
+          session=Depends(get_db)):
+    """
+    Staff page: the stock of their branch.
+    """
+    return stock_page(request, user, session)
+
+
+@app.post("/stock/add")
+def stock_add(request: Request, product_id: str = Form(...),
+              quantity: int = Form(...), user=Depends(require_staff),
+              session=Depends(get_db)):
+    """
+    Add stock to the user's own branch (never one chosen by the browser).
+    """
+    try:
+        add_stock(session, user.branch_id, product_id, quantity)
+    except (StockError, ProductAPIError) as error:
+        session.rollback()
+        return stock_page(request, user, session, str(error), 400)
+    return RedirectResponse("/stock", status_code=303)
+
+
+@app.post("/stock/remove")
+def stock_remove(request: Request, product_id: str = Form(...),
+                 quantity: int = Form(...), user=Depends(require_staff),
+                 session=Depends(get_db)):
+    """
+    Remove stock from the user's own branch.
+    """
+    try:
+        remove_stock(session, user.branch_id, product_id, quantity)
+    except StockError as error:
+        session.rollback()
+        return stock_page(request, user, session, str(error), 400)
+    return RedirectResponse("/stock", status_code=303)

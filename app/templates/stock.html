@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Stock – {{ user.branch.name }}</h1>
+<table>
+  <tr><th>Product id</th><th>Quantity</th></tr>
+  {% for line in lines %}
+  <tr><td>{{ line.product_id }}</td><td>{{ line.quantity }}</td></tr>
+  {% endfor %}
+</table>
+
+<h2>Add stock</h2>
+<form class="inline" method="post" action="/stock/add">
+  <input name="product_id" placeholder="Product id" required>
+  <input name="quantity" type="number" min="1" placeholder="Quantity" required>
+  <button type="submit">Add</button>
+</form>
+
+<h2>Remove stock</h2>
+<form class="inline" method="post" action="/stock/remove">
+  <input name="product_id" placeholder="Product id" required>
+  <input name="quantity" type="number" min="1" placeholder="Quantity" required>
+  <button type="submit">Remove</button>
+</form>
+{% endblock %}

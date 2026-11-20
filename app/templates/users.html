@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Users</h1>
+<table>
+  <tr><th>Username</th><th>Role</th><th>Branch</th><th>Status</th></tr>
+  {% for u in users %}
+  <tr>
+    <td>{{ u.username }}</td>
+    <td>{{ u.role }}</td>
+    <td>{{ u.branch.name if u.branch else "-" }}</td>
+    <td>{{ "active" if u.is_active else "deleted" }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

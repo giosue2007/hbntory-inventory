@@ -1,21 +1,41 @@
 {% extends "base.html" %}
+{% import "_ui.html" as ui %}
 {% block title %}Connexion{% endblock %}
+{% block auth_class %}split{% endblock %}
 {% block auth %}
-<div class="card">
-  <div class="brand"><span class="logo">HB</span>HBntory</div>
-  <h1>Connexion</h1>
-  <p class="muted">Backoffice des employés et de l'administrateur.</p>
-  {% if error %}<div class="alert alert-bad">{{ error }}</div>{% endif %}
-  <form method="post" action="/login">
-    <div class="field">
-      <label for="username">Nom d'utilisateur</label>
-      <input id="username" name="username" autocomplete="username" required autofocus>
-    </div>
-    <div class="field">
-      <label for="password">Mot de passe</label>
-      <input id="password" name="password" type="password" autocomplete="current-password" required>
-    </div>
-    <button type="submit" class="btn btn-primary w-full">Se connecter</button>
-  </form>
-</div>
+<section class="pitch">
+  <div class="brand">{{ ui.logo() }}HBntory</div>
+  <div class="pitch-body">
+    <h1>Le stock de tous vos magasins, au même endroit.</h1>
+    <p>Chaque magasin suit ses quantités, l'administrateur gère les équipes.</p>
+    <ul class="features">
+      <li><span class="ico">{{ ui.icon('<path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/>') }}</span>
+        <div><strong>Stock par magasin</strong>Chaque employé consulte et met à jour le stock de son magasin.</div></li>
+      <li><span class="ico">{{ ui.icon('<path d="M20 6L9 17l-5-5"/>') }}</span>
+        <div><strong>Produits vérifiés</strong>Chaque produit est contrôlé auprès de l'API Produits.</div></li>
+      <li><span class="ico">{{ ui.icon('<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>') }}</span>
+        <div><strong>Accès sécurisé</strong>Mots de passe hachés et droits selon le rôle.</div></li>
+    </ul>
+  </div>
+  <div class="pitch-foot">HBntory · Plateforme de gestion de stock</div>
+</section>
+<section class="form-side">
+  <div class="form-box">
+    <h1>Connexion</h1>
+    <p>Connectez-vous pour accéder au backoffice.</p>
+    {% if error %}<div class="alert alert-bad">{{ error }}</div>{% endif %}
+    <form method="post" action="/login">
+      <div class="field">
+        <label for="username">Nom d'utilisateur</label>
+        <input id="username" name="username" autocomplete="username" required autofocus>
+      </div>
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn btn-primary w-full">Se connecter</button>
+    </form>
+    <p class="note">Accès réservé au personnel. Mot de passe oublié ? Demandez à l'administrateur de le changer.</p>
+  </div>
+</section>
 {% endblock %}

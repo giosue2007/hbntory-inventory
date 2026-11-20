@@ -1,8 +1,9 @@
 {% extends "base.html" %}
+{% import "_ui.html" as ui %}
 {% block title %}Erreur {{ code }}{% endblock %}
 {% block auth %}
 <div class="card">
-  <div class="brand"><span class="logo">HB</span>HBntory</div>
+  <div class="brand">{{ ui.logo() }}HBntory</div>
   <h1>Erreur {{ code }}</h1>
   <p class="muted">{{ message }}</p>
   <a class="btn btn-primary w-full" href="/dashboard">Retour à l'accueil</a>

@@ -1,0 +1,48 @@
+{# Small reusable pieces: logo, icons and the two dashboard charts. #}
+
+{% macro logo() -%}
+<span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></svg></span>
+{%- endmacro %}
+
+{% macro icon(paths) -%}
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{{ paths|safe }}</svg>
+{%- endmacro %}
+
+{# Horizontal bars. items: list of (label, value, tone); the longest bar is "top". #}
+{% macro bars(items, top) -%}
+<div class="bars">
+  {% for label, value, tone in items %}
+  <div class="bar-row">
+    <span class="bar-label" title="{{ label }}">{{ label }}</span>
+    <span class="track"><span class="fill fill-{{ tone }}" style="width: {{ (value / (top or 1) * 100)|round(1) }}%"></span></span>
+    <span class="bar-value">{{ value }}</span>
+  </div>
+  {% endfor %}
+</div>
+{%- endmacro %}
+
+{# Donut chart in SVG. A circle of radius 15.915 has a perimeter of 100,
+   so each part is drawn as "percent" of the stroke. #}
+{% macro donut(parts, caption) -%}
+{% set total = parts|sum(attribute=1) %}
+{% set ns = namespace(start=0) %}
+<div class="donut-wrap">
+  <svg class="donut" viewBox="0 0 42 42" role="img" aria-label="{{ caption }} : {{ total }}">
+    <circle class="ring" cx="21" cy="21" r="15.915"/>
+    {% for label, value, tone in parts if value and total %}
+    {% set pct = value / total * 100 %}
+    <circle class="seg-{{ tone }}" cx="21" cy="21" r="15.915"
+            stroke-dasharray="{{ '%.2f'|format(pct) }} {{ '%.2f'|format(100 - pct) }}"
+            stroke-dashoffset="{{ '%.2f'|format(25 - ns.start) }}"/>
+    {% set ns.start = ns.start + pct %}
+    {% endfor %}
+    <text class="donut-total" x="21" y="22" text-anchor="middle">{{ total }}</text>
+    <text class="donut-caption" x="21" y="27" text-anchor="middle">{{ caption }}</text>
+  </svg>
+  <ul class="legend">
+    {% for label, value, tone in parts %}
+    <li><span class="dot dot-{{ tone }}"></span>{{ label }}<strong>{{ value }}</strong></li>
+    {% endfor %}
+  </ul>
+</div>
+{%- endmacro %}

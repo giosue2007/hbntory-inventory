@@ -1,30 +1,61 @@
 {% extends "base.html" %}
+{% import "_ui.html" as ui %}
 {% block title %}Tableau de bord{% endblock %}
 {% block content %}
+{% set n_staff = users|selectattr("role", "eq", "staff")|selectattr("is_active")|list|length %}
+{% set n_admin = users|selectattr("role", "eq", "admin")|selectattr("is_active")|list|length %}
+{% set n_deleted = users|rejectattr("is_active")|list|length %}
+{% set units = branches|sum(attribute="units") %}
 <div class="page-head">
   <div>
     <h1>Bonjour {{ user.username }}</h1>
     <p>Vue d'ensemble des magasins et des employés.</p>
   </div>
   <div class="actions">
-    <a class="btn btn-primary" href="/admin/users/new">Nouvel employé</a>
+    <a class="btn" href="/admin/branches">Voir les magasins</a>
+    <a class="btn btn-primary" href="/admin/users/new">{{ ui.icon('<path d="M12 5v14M5 12h14"/>') }}Nouvel employé</a>
   </div>
 </div>
 
 <div class="stats">
-  <div class="stat"><span>Utilisateurs</span><strong>{{ users|length }}</strong></div>
-  <div class="stat"><span>Employés actifs</span><strong>{{ users|selectattr("role", "eq", "staff")|selectattr("is_active")|list|length }}</strong></div>
-  <div class="stat"><span>Magasins</span><strong>{{ branches|length }}</strong></div>
-  <div class="stat"><span>Comptes supprimés</span><strong>{{ users|rejectattr("is_active")|list|length }}</strong></div>
+  <div class="stat"><span class="stat-icon">{{ ui.icon('<circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6"/><path d="M17 11a3 3 0 1 0 0-6M22 21c0-3-2-5-5-5.5"/>') }}</span>
+    <div><span>Employés actifs</span><strong>{{ n_staff }}</strong></div></div>
+  <div class="stat"><span class="stat-icon">{{ ui.icon('<path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/>') }}</span>
+    <div><span>Magasins</span><strong>{{ branches|length }}</strong></div></div>
+  <div class="stat"><span class="stat-icon">{{ ui.icon('<path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/>') }}</span>
+    <div><span>Unités en stock</span><strong>{{ units }}</strong></div></div>
+  <div class="stat stat-bad"><span class="stat-icon">{{ ui.icon('<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>') }}</span>
+    <div><span>Comptes supprimés</span><strong>{{ n_deleted }}</strong></div></div>
+</div>
+
+<div class="grid-chart">
+  <div class="card">
+    <div class="card-head">
+      <div><h2>Unités en stock par magasin</h2><p>Total : {{ units }} unités.</p></div>
+      <a href="/admin/branches">Détails</a>
+    </div>
+    {% set items = [] %}
+    {% for b in branches %}{% set _ = items.append((b.name, b.units, "accent")) %}{% endfor %}
+    {{ ui.bars(items, branches|map(attribute="units")|max if branches else 0) }}
+  </div>
+  <div class="card">
+    <div class="card-head"><div><h2>Comptes</h2><p>{{ users|length }} utilisateurs au total.</p></div></div>
+    {{ ui.donut([("Employés actifs", n_staff, "accent"), ("Administrateur", n_admin, "warn"), ("Supprimés", n_deleted, "muted")], "comptes") }}
+  </div>
 </div>
 
 <div class="card table-card">
-  <div class="card-head"><h2>Magasins</h2><a href="/admin/branches">Voir tout</a></div>
+  <div class="card-head">
+    <div><h2>Magasins</h2><p>Lecture seule : l'administrateur ne gère pas le stock.</p></div>
+    <a href="/admin/branches">Voir tout</a>
+  </div>
   <table>
-    <tr><th>Magasin</th><th class="num">Employés actifs</th><th class="num">Produits</th><th class="num">Unités en stock</th></tr>
+    <thead><tr><th>Magasin</th><th class="num">Employés actifs</th><th class="num">Produits</th><th class="num">Unités en stock</th></tr></thead>
+    <tbody>
     {% for b in branches %}
-    <tr><td>{{ b.name }}</td><td class="num">{{ b.staff }}</td><td class="num">{{ b.products }}</td><td class="num">{{ b.units }}</td></tr>
+    <tr><td><strong>{{ b.name }}</strong></td><td class="num">{{ b.staff }}</td><td class="num">{{ b.products }}</td><td class="num">{{ b.units }}</td></tr>
     {% endfor %}
+    </tbody>
   </table>
 </div>
 {% endblock %}

@@ -61,4 +61,4 @@ pages still work and show "(API Produits indisponible)".
   créé."); a red message explains every refusal and keeps the values
   typed in the form.
 - Errors 403 and 404 show a clean page instead of raw JSON.
-- Light and dark themes follow the system setting.
+- Light theme only, so the pages look the same on every computer.

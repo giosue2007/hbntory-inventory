@@ -3,7 +3,43 @@
 {% block title %}Connexion{% endblock %}
 {% block auth_class %}split{% endblock %}
 {% block auth %}
+<style>
+  /* 3D cubes behind the login text: pure CSS, no library. */
+  .cubes { position: absolute; inset: 0; perspective: 900px; pointer-events: none; }
+  .pitch > :not(.cubes) { position: relative; z-index: 1; }
+  .spot { position: absolute; left: var(--x); top: var(--y); width: var(--s); height: var(--s);
+          opacity: var(--o); animation: float var(--t) ease-in-out infinite alternate; }
+  .cube { position: relative; width: 100%; height: 100%; transform-style: preserve-3d;
+          animation: spin calc(var(--t) * 4) linear infinite; animation-delay: var(--d); }
+  .face { position: absolute; inset: 0; border: 1px solid rgba(111, 209, 176, .45);
+          background: linear-gradient(135deg, rgba(63, 176, 143, .30), rgba(15, 36, 30, .20)); }
+  .face:nth-child(-n+2)::after, .face:nth-child(n+5)::after {
+    content: ""; position: absolute; top: 0; bottom: 0; left: 42%; width: 16%;
+    background: rgba(255, 255, 255, .10); }
+  .face:nth-child(1) { transform: translateZ(calc(var(--s) / 2)); }
+  .face:nth-child(2) { transform: rotateY(180deg) translateZ(calc(var(--s) / 2)); }
+  .face:nth-child(3) { transform: rotateY(90deg) translateZ(calc(var(--s) / 2)); filter: brightness(.7); }
+  .face:nth-child(4) { transform: rotateY(-90deg) translateZ(calc(var(--s) / 2)); filter: brightness(.7); }
+  .face:nth-child(5) { transform: rotateX(90deg) translateZ(calc(var(--s) / 2)); filter: brightness(1.3); }
+  .face:nth-child(6) { transform: rotateX(-90deg) translateZ(calc(var(--s) / 2)); filter: brightness(.5); }
+  @keyframes spin { from { transform: rotateX(-24deg) rotateY(0); }
+                    to { transform: rotateX(-24deg) rotateY(360deg); } }
+  @keyframes float { from { transform: translateY(-14px); } to { transform: translateY(14px); } }
+  @media (prefers-reduced-motion: reduce) { .spot, .cube { animation: none; } }
+  @media (max-width: 860px) { .spot:nth-child(n+3) { display: none; } }
+</style>
 <section class="pitch">
+  <div class="cubes" aria-hidden="true">
+    {# x, y, size, opacity, duration, delay #}
+    {% for x, y, s, o, t, d in [("76%", "9%", 120, 1, 6, 0), ("86%", "62%", 160, 0.9, 8, -9),
+                                ("72%", "53%", 64, 0.7, 5, -3), ("47%", "87%", 90, 0.6, 7, -14),
+                                ("40%", "6%", 46, 0.5, 5, -6), ("90%", "38%", 52, 0.6, 6, -20),
+                                ("27%", "21%", 58, 0.4, 7, -11)] %}
+    <div class="spot" style="--x: {{ x }}; --y: {{ y }}; --s: {{ s }}px; --o: {{ o }}; --t: {{ t }}s; --d: {{ d }}s">
+      <div class="cube"><i class="face"></i><i class="face"></i><i class="face"></i><i class="face"></i><i class="face"></i><i class="face"></i></div>
+    </div>
+    {% endfor %}
+  </div>
   <div class="brand">{{ ui.logo() }}HBntory</div>
   <div class="pitch-body">
     <h1>Le stock de tous vos magasins, au même endroit.</h1>

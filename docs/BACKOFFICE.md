@@ -1,47 +1,64 @@
 # HBntory - Backoffice features
 
-Server-side rendered pages (FastAPI + Jinja2). Every rule is checked
-in the backend (`app/auth.py`, `app/stock_service.py`,
+Server-side rendered pages (FastAPI + Jinja2), in French. Every rule is
+checked in the backend (`app/auth.py`, `app/stock_service.py`,
 `app/user_service.py`), not only in the HTML.
+
+## Navigation
+
+Opening the site without a session leads to the login page. After login,
+every user lands on a dashboard. The sidebar shows only the sections of
+the user's role.
+
+| Role | Menu |
+|------|------|
+| Admin | Tableau de bord, Utilisateurs, Magasins |
+| Common user (staff) | Tableau de bord, Stock, Ajouter du stock, Retirer du stock |
 
 ## Common users (staff)
 
-| Feature | Route | Rule |
-|---------|-------|------|
+| Page | Route | Rule |
+|------|-------|------|
+| Dashboard | `GET /dashboard` | key figures and the products in low stock or out of stock |
 | Consult stock | `GET /stock` | only the stock of their own branch |
-| Add stock | `POST /stock/add` | positive integer, product must exist in the Product API |
-| Remove stock | `POST /stock/remove` | positive integer, stock never negative |
+| Add stock | `GET`/`POST /stock/add` | positive integer, product must exist in the Product API |
+| Remove stock | `GET`/`POST /stock/remove` | positive integer, stock never negative |
 
 The branch is always `user.branch_id`. A `branch_id` sent by the browser
 is ignored, so a common user cannot operate on another branch.
 
 ## Admin
 
-| Feature | Route | Rule |
-|---------|-------|------|
+| Page | Route | Rule |
+|------|-------|------|
+| Dashboard | `GET /dashboard` | users, active staff, branches, deleted accounts |
 | List users | `GET /admin/users` | role, branch, active or deleted |
-| Create a common user | `POST /admin/users` | unique username, password of 8+ characters (stored hashed), existing branch |
-| Change a password | `POST /admin/users/{id}/password` | 8+ characters, stored hashed |
+| Create a common user | `GET /admin/users/new`, `POST /admin/users` | unique username, password of 8+ characters (stored hashed), existing branch |
+| Edit a common user | `GET /admin/users/{id}` | one page per user |
 | Change a branch | `POST /admin/users/{id}/branch` | branch must exist |
+| Change a password | `POST /admin/users/{id}/password` | 8+ characters, stored hashed |
 | Soft-delete a user | `POST /admin/users/{id}/delete` | sets `deleted_at`; the row stays, login is refused |
+| Branches | `GET /admin/branches` | read only: active staff, products and units per branch |
 
-Only active common users can be modified or deleted: the admin account
-is protected. The admin cannot reach `/stock` (403).
+Only active common users can be edited or deleted: the admin account is
+protected (404). The admin cannot reach the stock pages (403).
 
 ## Product API integration
 
-Product details are never stored. When the stock page needs a product
-name, `get_product()` (`app/product_api.py`) calls
-`GET {PRODUCT_API_URL}/products/{id}` live. If the API is down, the page
-still works and shows "(Product API unavailable)".
+Product details are never stored. When a page needs a product name,
+`get_product()` (`app/product_api.py`) calls
+`GET {PRODUCT_API_URL}/products/{id}` live. If the API is down, the
+pages still work and show "(API Produits indisponible)".
 
 ## Interface
 
-- Sidebar layout with the user's name, role and branch, and a log out
+- Sidebar with icons, the user's name, role and branch, and a log out
   button. On a phone the sidebar becomes a top bar.
-- Key figures at the top of each page, status badges (In stock, Low
-  stock, Out of stock; Active, Deleted) and clear empty states.
-- A green message confirms every action ("Stock added.", "Changes
-  saved."); a red message explains every refusal.
+- One page per action, with a breadcrumb and a Cancel button.
+- Key figures, status badges (En stock, Stock bas, Rupture; Actif,
+  Supprimé) and clear empty states.
+- A green message confirms every action ("Stock ajouté.", "Employé
+  créé."); a red message explains every refusal and keeps the values
+  typed in the form.
 - Errors 403 and 404 show a clean page instead of raw JSON.
 - Light and dark themes follow the system setting.

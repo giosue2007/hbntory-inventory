@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Tableau de bord{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Bonjour {{ user.username }}</h1>
+    <p>Vue d'ensemble des magasins et des employés.</p>
+  </div>
+  <div class="actions">
+    <a class="btn btn-primary" href="/admin/users/new">Nouvel employé</a>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><span>Utilisateurs</span><strong>{{ users|length }}</strong></div>
+  <div class="stat"><span>Employés actifs</span><strong>{{ users|selectattr("role", "eq", "staff")|selectattr("is_active")|list|length }}</strong></div>
+  <div class="stat"><span>Magasins</span><strong>{{ branches|length }}</strong></div>
+  <div class="stat"><span>Comptes supprimés</span><strong>{{ users|rejectattr("is_active")|list|length }}</strong></div>
+</div>
+
+<div class="card table-card">
+  <div class="card-head"><h2>Magasins</h2><a href="/admin/branches">Voir tout</a></div>
+  <table>
+    <tr><th>Magasin</th><th class="num">Employés actifs</th><th class="num">Produits</th><th class="num">Unités en stock</th></tr>
+    {% for b in branches %}
+    <tr><td>{{ b.name }}</td><td class="num">{{ b.staff }}</td><td class="num">{{ b.products }}</td><td class="num">{{ b.units }}</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

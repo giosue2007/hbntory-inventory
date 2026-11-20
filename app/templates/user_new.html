@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Nouvel employé{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumb"><a href="/admin/users">Utilisateurs</a> / Nouveau</div>
+    <h1>Nouvel employé</h1>
+    <p>Un employé appartient à un seul magasin.</p>
+  </div>
+</div>
+
+<form class="card narrow" method="post" action="/admin/users">
+  <div class="field">
+    <label for="username">Nom d'utilisateur</label>
+    <input id="username" name="username" value="{{ values.username or '' }}" required>
+  </div>
+  <div class="field">
+    <label for="password">Mot de passe</label>
+    <input id="password" name="password" type="password" minlength="8" required>
+    <div class="hint">8 caractères minimum. Il est enregistré haché, jamais en clair.</div>
+  </div>
+  <div class="field">
+    <label for="branch">Magasin</label>
+    <select id="branch" name="branch_id">
+      {% for b in branches %}
+      <option value="{{ b.id }}" {{ "selected" if values.branch_id == b.id }}>{{ b.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="actions">
+    <button type="submit" class="btn btn-primary">Créer l'employé</button>
+    <a class="btn" href="/admin/users">Annuler</a>
+  </div>
+</form>
+{% endblock %}

@@ -1,21 +1,21 @@
 {% extends "base.html" %}
-{% block title %}Sign in{% endblock %}
+{% block title %}Connexion{% endblock %}
 {% block auth %}
 <div class="card">
   <div class="brand"><span class="logo">HB</span>HBntory</div>
-  <h1>Sign in</h1>
-  <p class="muted">Backoffice for branch staff and administrators.</p>
+  <h1>Connexion</h1>
+  <p class="muted">Backoffice des employés et de l'administrateur.</p>
   {% if error %}<div class="alert alert-bad">{{ error }}</div>{% endif %}
   <form method="post" action="/login">
     <div class="field">
-      <label for="username">Username</label>
+      <label for="username">Nom d'utilisateur</label>
       <input id="username" name="username" autocomplete="username" required autofocus>
     </div>
     <div class="field">
-      <label for="password">Password</label>
+      <label for="password">Mot de passe</label>
       <input id="password" name="password" type="password" autocomplete="current-password" required>
     </div>
-    <button type="submit" class="btn btn-primary w-full">Sign in</button>
+    <button type="submit" class="btn btn-primary w-full">Se connecter</button>
   </form>
 </div>
 {% endblock %}

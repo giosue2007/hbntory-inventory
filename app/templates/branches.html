@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Magasins{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Magasins</h1>
+    <p>Vue en lecture seule : l'administrateur ne gère pas le stock.</p>
+  </div>
+</div>
+
+<div class="card table-card">
+  <table>
+    <tr><th>Magasin</th><th class="num">Employés actifs</th><th class="num">Produits</th><th class="num">Unités en stock</th></tr>
+    {% for b in branches %}
+    <tr><td>{{ b.name }}</td><td class="num">{{ b.staff }}</td><td class="num">{{ b.products }}</td><td class="num">{{ b.units }}</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

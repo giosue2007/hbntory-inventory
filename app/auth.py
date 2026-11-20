@@ -54,7 +54,7 @@ def require_admin(user=Depends(get_current_user)):
     """
     if user.role != ROLE_ADMIN:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail="Admin only.")
+                            detail="Réservé à l'administrateur.")
     return user
 
 
@@ -64,5 +64,6 @@ def require_staff(user=Depends(get_current_user)):
     """
     if user.role != ROLE_STAFF:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail="Staff only: admin cannot manage stock.")
+                            detail="Réservé aux employés : "
+                                   "l'administrateur ne gère pas le stock.")
     return user

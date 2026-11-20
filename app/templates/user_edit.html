@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ staff.username }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="crumb"><a href="/admin/users">Utilisateurs</a> / {{ staff.username }}</div>
+    <h1>{{ staff.username }}</h1>
+    <p>Employé · magasin de {{ staff.branch.name }}</p>
+  </div>
+</div>
+
+<div class="grid-2">
+  <form class="card" method="post" action="/admin/users/{{ staff.id }}/branch">
+    <h2>Changer de magasin</h2>
+    <div class="field">
+      <label for="branch">Magasin</label>
+      <select id="branch" name="branch_id">
+        {% for b in branches %}
+        <option value="{{ b.id }}" {{ "selected" if b.id == staff.branch_id }}>{{ b.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+  </form>
+  <form class="card" method="post" action="/admin/users/{{ staff.id }}/password">
+    <h2>Changer le mot de passe</h2>
+    <div class="field">
+      <label for="password">Nouveau mot de passe</label>
+      <input id="password" name="password" type="password" minlength="8" required>
+      <div class="hint">8 caractères minimum.</div>
+    </div>
+    <button type="submit" class="btn btn-primary">Enregistrer</button>
+  </form>
+</div>
+
+<form class="card danger" style="margin-top: 20px" method="post" action="/admin/users/{{ staff.id }}/delete"
+      onsubmit="return confirm('Supprimer cet employé ? Il ne pourra plus se connecter.')">
+  <h2>Supprimer l'employé</h2>
+  <p>Le compte est désactivé mais gardé en base (suppression douce) : l'historique reste cohérent.</p>
+  <button type="submit" class="btn btn-danger">Supprimer {{ staff.username }}</button>
+</form>
+{% endblock %}

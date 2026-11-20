@@ -28,13 +28,13 @@ def product_exists(product_id):
     try:
         response = httpx.get(url, timeout=5)
     except httpx.HTTPError as error:
-        raise ProductAPIError(f"Product API unreachable: {error}") from error
+        raise ProductAPIError(f"API Produits injoignable : {error}") from error
     if response.status_code == 200:
         return True
     if response.status_code == 404:
         return False
     raise ProductAPIError(
-        f"Product API returned status {response.status_code}")
+        f"L'API Produits a répondu {response.status_code}.")
 
 
 def get_product(product_id):
@@ -46,10 +46,10 @@ def get_product(product_id):
     try:
         response = httpx.get(url, timeout=5)
     except httpx.HTTPError as error:
-        raise ProductAPIError(f"Product API unreachable: {error}") from error
+        raise ProductAPIError(f"API Produits injoignable : {error}") from error
     if response.status_code == 404:
         return None
     if response.status_code != 200:
         raise ProductAPIError(
-            f"Product API returned status {response.status_code}")
+            f"L'API Produits a répondu {response.status_code}.")
     return response.json()

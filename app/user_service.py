@@ -20,8 +20,8 @@ def check_password(password):
     A password must have at least MIN_PASSWORD_LENGTH characters.
     """
     if len(password) < MIN_PASSWORD_LENGTH:
-        raise UserError(f"Password must have at least "
-                        f"{MIN_PASSWORD_LENGTH} characters.")
+        raise UserError(f"Le mot de passe doit contenir au moins "
+                        f"{MIN_PASSWORD_LENGTH} caractères.")
 
 
 def get_branch(session, branch_id):
@@ -30,7 +30,7 @@ def get_branch(session, branch_id):
     """
     branch = session.get(Branch, branch_id)
     if branch is None:
-        raise UserError(f"Branch {branch_id} does not exist.")
+        raise UserError(f"Le magasin {branch_id} n'existe pas.")
     return branch
 
 
@@ -41,9 +41,9 @@ def get_staff(session, user_id):
     """
     user = session.get(User, user_id)
     if user is None or user.role != ROLE_STAFF:
-        raise UserError("Only common users can be managed.")
+        raise UserError("Seuls les employés peuvent être gérés.")
     if not user.is_active:
-        raise UserError(f"User {user.username} is deleted.")
+        raise UserError(f"L'utilisateur {user.username} est supprimé.")
     return user
 
 
@@ -53,9 +53,9 @@ def create_staff(session, username, password, branch_id):
     """
     username = username.strip()
     if not username:
-        raise UserError("Username is required.")
+        raise UserError("Le nom d'utilisateur est obligatoire.")
     if session.query(User).filter_by(username=username).first():
-        raise UserError(f"Username {username} is already taken.")
+        raise UserError(f"Le nom d'utilisateur {username} est déjà pris.")
     check_password(password)
     branch = get_branch(session, branch_id)
     user = User(username=username, role=ROLE_STAFF, branch=branch,

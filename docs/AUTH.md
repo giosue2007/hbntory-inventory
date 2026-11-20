@@ -7,8 +7,8 @@
    - unknown username -> refused;
    - soft-deleted user (`deleted_at` set) -> refused;
    - wrong password (`verify_password` fails) -> refused.
-   The same message is shown in every case ("Invalid username or
-   password.") so an attacker cannot tell which usernames exist.
+   The same message is shown in every case ("Identifiant ou mot de
+   passe incorrect.") so an attacker cannot tell which usernames exist.
 3. On success, only the user's id is stored in a signed session cookie
    (`SessionMiddleware`, key from `SECRET_KEY`). The password is never
    stored in the cookie.
@@ -50,4 +50,5 @@ Passwords are hashed with PBKDF2-SHA256, a random salt per user and
     python3 scripts/init_db.py
     uvicorn app.main:app --reload
 
-Then open http://127.0.0.1:8000/login.
+Then open http://127.0.0.1:8000: without a session, the login page
+opens first, then the dashboard.

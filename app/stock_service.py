@@ -18,9 +18,9 @@ def check_quantity(quantity):
     A stock change must be a positive integer (bool is refused).
     """
     if isinstance(quantity, bool) or not isinstance(quantity, int):
-        raise StockError("Quantity must be an integer.")
+        raise StockError("La quantité doit être un nombre entier.")
     if quantity <= 0:
-        raise StockError("Quantity must be greater than 0.")
+        raise StockError("La quantité doit être supérieure à 0.")
 
 
 def get_branch(session, branch_id):
@@ -29,7 +29,7 @@ def get_branch(session, branch_id):
     """
     branch = session.get(Branch, branch_id)
     if branch is None:
-        raise StockError(f"Branch {branch_id} does not exist.")
+        raise StockError(f"Le magasin {branch_id} n'existe pas.")
     return branch
 
 
@@ -55,7 +55,7 @@ def add_stock(session, branch_id, product_id, quantity,
     get_branch(session, branch_id)
     product_id = str(product_id)
     if not check_product(product_id):
-        raise StockError(f"Product {product_id} does not exist.")
+        raise StockError(f"Le produit {product_id} n'existe pas.")
     stock = get_or_create_stock(session, branch_id, product_id)
     stock.quantity += quantity
     session.commit()
@@ -72,8 +72,8 @@ def remove_stock(session, branch_id, product_id, quantity):
         branch_id=branch_id, product_id=str(product_id)).first()
     available = stock.quantity if stock else 0
     if quantity > available:
-        raise StockError(
-            f"Not enough stock: {available} available, {quantity} asked.")
+        raise StockError(f"Stock insuffisant : {available} disponible(s), "
+                         f"{quantity} demandé(s).")
     stock.quantity -= quantity
     session.commit()
     return stock

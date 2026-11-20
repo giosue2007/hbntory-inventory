@@ -1,80 +1,35 @@
 {% extends "base.html" %}
-{% block title %}Users{% endblock %}
+{% block title %}Utilisateurs{% endblock %}
 {% block content %}
 <div class="page-head">
-  <h1>Users</h1>
-  <p>Create, move and remove the common users of every branch.</p>
-</div>
-
-<div class="stats">
-  <div class="stat"><span>Users</span><strong>{{ users|length }}</strong></div>
-  <div class="stat"><span>Active staff</span><strong>{{ users|selectattr("role", "eq", "staff")|selectattr("is_active")|list|length }}</strong></div>
-  <div class="stat"><span>Branches</span><strong>{{ branches|length }}</strong></div>
-  <div class="stat"><span>Deleted</span><strong>{{ users|rejectattr("is_active")|list|length }}</strong></div>
+  <div>
+    <h1>Utilisateurs</h1>
+    <p>Les employés de chaque magasin et l'administrateur.</p>
+  </div>
+  <div class="actions">
+    <a class="btn btn-primary" href="/admin/users/new">Nouvel employé</a>
+  </div>
 </div>
 
 <div class="card table-card">
   <table>
-    <tr><th>User</th><th>Role</th><th>Branch</th><th>Status</th><th></th></tr>
+    <tr><th>Utilisateur</th><th>Rôle</th><th>Magasin</th><th>Statut</th><th></th></tr>
     {% for u in users %}
     <tr>
       <td><div class="who"><span class="avatar">{{ u.username[:2]|upper }}</span>{{ u.username }}</div></td>
-      <td>{{ u.role|capitalize }}</td>
+      <td>{{ "Administrateur" if u.role == "admin" else "Employé" }}</td>
       <td>{{ u.branch.name if u.branch else "—" }}</td>
       <td>
-        {% if u.is_active %}<span class="badge badge-ok">Active</span>
-        {% else %}<span class="badge badge-off">Deleted</span>{% endif %}
+        {% if u.is_active %}<span class="badge badge-ok">Actif</span>
+        {% else %}<span class="badge badge-off">Supprimé</span>{% endif %}
       </td>
       <td class="num">
         {% if u.role == "staff" and u.is_active %}
-        <details class="manage">
-          <summary class="btn btn-sm">Manage</summary>
-          <div class="manage-panel">
-            <form class="row" method="post" action="/admin/users/{{ u.id }}/branch">
-              <select name="branch_id" aria-label="Branch">
-                {% for b in branches %}
-                <option value="{{ b.id }}" {{ "selected" if b.id == u.branch_id }}>{{ b.name }}</option>
-                {% endfor %}
-              </select>
-              <button type="submit" class="btn btn-sm">Move</button>
-            </form>
-            <form class="row" method="post" action="/admin/users/{{ u.id }}/password">
-              <input name="password" type="password" minlength="8" placeholder="New password" aria-label="New password" required>
-              <button type="submit" class="btn btn-sm">Save</button>
-            </form>
-            <form method="post" action="/admin/users/{{ u.id }}/delete"
-                  onsubmit="return confirm('Delete this user? They will no longer be able to log in.')">
-              <button type="submit" class="btn btn-sm btn-danger w-full">Delete user</button>
-            </form>
-          </div>
-        </details>
+        <a class="btn btn-sm" href="/admin/users/{{ u.id }}">Modifier</a>
         {% endif %}
       </td>
     </tr>
     {% endfor %}
   </table>
 </div>
-
-<form class="card" method="post" action="/admin/users">
-  <h2>New common user</h2>
-  <div class="grid-3">
-    <div class="field">
-      <label for="new-username">Username</label>
-      <input id="new-username" name="username" required>
-    </div>
-    <div class="field">
-      <label for="new-password">Password</label>
-      <input id="new-password" name="password" type="password" minlength="8" placeholder="8 characters minimum" required>
-    </div>
-    <div class="field">
-      <label for="new-branch">Branch</label>
-      <select id="new-branch" name="branch_id">
-        {% for b in branches %}
-        <option value="{{ b.id }}">{{ b.name }}</option>
-        {% endfor %}
-      </select>
-    </div>
-  </div>
-  <button type="submit" class="btn btn-primary">Create user</button>
-</form>
 {% endblock %}

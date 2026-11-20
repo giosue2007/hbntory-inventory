@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Tableau de bord{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Bonjour {{ user.username }}</h1>
+    <p>Magasin de {{ user.branch.name }} : l'essentiel de votre stock.</p>
+  </div>
+  <div class="actions">
+    <a class="btn" href="/stock/remove">Retirer du stock</a>
+    <a class="btn btn-primary" href="/stock/add">Ajouter du stock</a>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><span>Produits</span><strong>{{ rows|length }}</strong></div>
+  <div class="stat"><span>Unités en stock</span><strong>{{ rows|sum(attribute="quantity") }}</strong></div>
+  <div class="stat"><span>Stock bas</span><strong>{{ rows|selectattr("quantity", "gt", 0)|selectattr("quantity", "lt", low)|list|length }}</strong></div>
+  <div class="stat"><span>Ruptures</span><strong>{{ rows|selectattr("quantity", "eq", 0)|list|length }}</strong></div>
+</div>
+
+<div class="card table-card">
+  <div class="card-head"><h2>À surveiller</h2><a href="/stock">Voir tout le stock</a></div>
+  {% if alerts %}
+  <table>
+    <tr><th>Produit</th><th>Nom</th><th class="num">Quantité</th><th>État</th></tr>
+    {% for row in alerts %}
+    <tr>
+      <td>{{ row.product_id }}</td>
+      <td class="{{ 'muted' if row.name.startswith('(') }}">{{ row.name }}</td>
+      <td class="num">{{ row.quantity }}</td>
+      <td>{% if row.quantity == 0 %}<span class="badge badge-bad">Rupture</span>{% else %}<span class="badge badge-warn">Stock bas</span>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p class="empty">Aucun produit en stock bas. Tout va bien.</p>
+  {% endif %}
+</div>
+{% endblock %}

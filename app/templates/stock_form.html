@@ -10,30 +10,44 @@
   </div>
 </div>
 
-<form class="card narrow" method="post" action="{{ '/stock/add' if adding else '/stock/remove' }}">
-  <div class="field">
-    <label for="product">Produit</label>
-    {% if adding %}
-    <input id="product" name="product_id" value="{{ values.product_id or '' }}" placeholder="Identifiant du produit, ex. 5" required>
-    <div class="hint">Le produit doit exister dans l'API Produits.</div>
-    {% else %}
-    <select id="product" name="product_id" required>
-      {% for row in rows if row.quantity > 0 %}
-      <option value="{{ row.product_id }}" {{ "selected" if values.product_id == row.product_id }}>{{ row.product_id }} · {{ row.name }} ({{ row.quantity }} en stock)</option>
+<div class="grid-chart">
+  <form class="card" method="post" action="{{ '/stock/add' if adding else '/stock/remove' }}">
+    <div class="field">
+      <label for="product">Produit</label>
+      {% if adding %}
+      <input id="product" name="product_id" value="{{ values.product_id or request.query_params.get('product_id', '') }}" placeholder="Identifiant du produit, ex. 5" required>
+      <div class="hint">Le produit doit exister dans l'API Produits.</div>
       {% else %}
-      <option value="" disabled selected>Aucun produit en stock</option>
-      {% endfor %}
-    </select>
-    {% endif %}
+      <select id="product" name="product_id" required>
+        {% for row in rows|sort(attribute="name") if row.quantity > 0 %}
+        <option value="{{ row.product_id }}" {{ "selected" if values.product_id == row.product_id }}>{{ row.product_id }} · {{ row.name }} ({{ row.quantity }} en stock)</option>
+        {% else %}
+        <option value="" disabled selected>Aucun produit en stock</option>
+        {% endfor %}
+      </select>
+      {% endif %}
+    </div>
+    <div class="field">
+      <label for="quantity">Quantité</label>
+      <input id="quantity" name="quantity" type="number" min="1" value="{{ values.quantity or '' }}" required>
+      <div class="hint">Un nombre entier supérieur à 0.</div>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">{{ "Ajouter au stock" if adding else "Retirer du stock" }}</button>
+      <a class="btn" href="/stock">Annuler</a>
+    </div>
+  </form>
+  <div class="card">
+    <h2>Règles vérifiées par le serveur</h2>
+    <ul class="legend">
+      <li><span class="dot"></span>Seulement le magasin de {{ user.branch.name }}</li>
+      <li><span class="dot"></span>Quantité entière et positive</li>
+      {% if adding %}
+      <li><span class="dot"></span>Produit connu de l'API Produits</li>
+      {% else %}
+      <li><span class="dot dot-bad"></span>Jamais plus que le stock disponible</li>
+      {% endif %}
+    </ul>
   </div>
-  <div class="field">
-    <label for="quantity">Quantité</label>
-    <input id="quantity" name="quantity" type="number" min="1" value="{{ values.quantity or '' }}" required>
-    <div class="hint">Un nombre entier supérieur à 0.</div>
-  </div>
-  <div class="actions">
-    <button type="submit" class="btn btn-primary">{{ "Ajouter au stock" if adding else "Retirer du stock" }}</button>
-    <a class="btn" href="/stock">Annuler</a>
-  </div>
-</form>
+</div>
 {% endblock %}

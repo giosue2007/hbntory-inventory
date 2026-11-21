@@ -5,7 +5,9 @@ one admin, two branches, one staff user per branch and sample stock.
 
 The admin password comes from the ADMIN_PASSWORD environment variable
 (or .env). If it is missing, a random one is generated and printed once.
-Running the script again does not duplicate data.
+Running the script again does not duplicate data: it only adds what is
+missing (for example new sample stock lines) and never changes existing
+quantities or passwords.
 
 Usage:
     python3 scripts/init_db.py
@@ -25,9 +27,13 @@ from app.security import hash_password  # noqa: E402
 BRANCHES = ["Paris", "Lyon"]
 STAFF = {"paris_staff": "Paris", "lyon_staff": "Lyon"}
 # product_id from the external Product API -> quantity per branch
+# (ids 1 to 16 are served by scripts/mock_product_api.py). Some lines are
+# at 0 or under 10 on purpose, to show "Rupture" and "Stock bas".
 SAMPLE_STOCK = {
-    "Paris": {"1": 25, "2": 10, "3": 0},
-    "Lyon": {"1": 5, "2": 40, "4": 12},
+    "Paris": {"1": 25, "2": 10, "3": 0, "4": 18, "5": 4, "6": 32, "7": 7,
+              "8": 15, "10": 0, "12": 22, "13": 40, "16": 3},
+    "Lyon": {"1": 5, "2": 40, "4": 12, "6": 14, "8": 0, "9": 27, "11": 6,
+             "14": 9, "15": 11, "16": 20},
 }
 
 
@@ -58,7 +64,8 @@ def main():
         branches[name] = branch
     session.flush()
 
-    if not session.query(User).filter_by(username="admin").first():
+    # Only create the admin if there is none yet (it may have been renamed).
+    if not session.query(User).filter_by(role=ROLE_ADMIN).first():
         session.add(User(username="admin", role=ROLE_ADMIN,
                          password_hash=hash_password(
                              get_password("ADMIN_PASSWORD"))))

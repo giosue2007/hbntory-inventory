@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Stock{% endblock %}
+{% block content %}
+{% set top = rows|map(attribute="quantity")|max if rows else 0 %}
+<div class="page-head">
+  <div>
+    <h1>Stock · {{ user.branch.name }}</h1>
+    <p>Les noms des produits viennent en direct de l'API Produits.</p>
+  </div>
+  <div class="actions">
+    <a class="btn" href="/stock/remove">Retirer</a>
+    <a class="btn btn-primary" href="/stock/add">Ajouter</a>
+  </div>
+</div>
+
+<div class="card table-card" data-table>
+  {% if rows %}
+  <div class="toolbar">
+    <div class="chips" role="group" aria-label="Filtrer par état">
+      <button type="button" class="chip on" data-filter="all">Tous <span>{{ rows|length }}</span></button>
+      <button type="button" class="chip" data-filter="ok">En stock <span>{{ rows|selectattr("quantity", "ge", low)|list|length }}</span></button>
+      <button type="button" class="chip" data-filter="low">Stock bas <span>{{ rows|selectattr("quantity", "gt", 0)|selectattr("quantity", "lt", low)|list|length }}</span></button>
+      <button type="button" class="chip" data-filter="out">Rupture <span>{{ rows|selectattr("quantity", "eq", 0)|list|length }}</span></button>
+    </div>
+    <span class="count" data-count></span>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th><button type="button" class="sort">Produit</button></th>
+        <th><button type="button" class="sort">Nom</button></th>
+        <th class="num"><button type="button" class="sort">Quantité</button></th>
+        <th>État</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for row in rows|sort(attribute="name") %}
+    {% set status = "out" if row.quantity == 0 else ("low" if row.quantity < low else "ok") %}
+    <tr data-status="{{ status }}">
+      <td class="mono">#{{ row.product_id }}</td>
+      <td class="{{ 'muted' if row.name.startswith('(') }}">{{ row.name }}</td>
+      <td class="num">{{ row.quantity }}<span class="level"><span style="width: {{ (row.quantity / (top or 1) * 100)|round(1) }}%"></span></span></td>
+      <td>
+        {% if status == "out" %}<span class="badge badge-bad">Rupture</span>
+        {% elif status == "low" %}<span class="badge badge-warn">Stock bas</span>
+        {% else %}<span class="badge badge-ok">En stock</span>{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p class="empty" data-empty hidden>Aucun produit ne correspond à la recherche.</p>
+  {% else %}
+  <p class="empty">Aucun stock pour l'instant. <a href="/stock/add">Ajoutez un premier produit.</a></p>
+  {% endif %}
+</div>
+{% endblock %}

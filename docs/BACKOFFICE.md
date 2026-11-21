@@ -50,6 +50,16 @@ Product details are never stored. When a page needs a product name,
 `GET {PRODUCT_API_URL}/products/{id}` live. If the API is down, the
 pages still work and show "(API Produits indisponible)".
 
+For development and demos, `scripts/mock_product_api.py` stands in for
+the real Product API: it serves a catalog of 16 electronics products on
+`GET /products` and `GET /products/{id}` (404 for an unknown id).
+
+    uvicorn scripts.mock_product_api:app --port 9000
+
+`scripts/init_db.py` adds sample stock for these products in both
+branches, with some lines at 0 or under 10 to show "Rupture" and
+"Stock bas". Running it again only adds the missing lines.
+
 ## Interface
 
 - Sidebar with icons, the user's name, role and branch, and a log out

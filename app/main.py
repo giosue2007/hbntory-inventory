@@ -379,6 +379,18 @@ def admin_branches(request: Request, admin=Depends(require_admin),
                   {"user": admin, "branches": branch_summary(session)})
 
 
+@app.get("/admin/api/summary")
+def admin_summary(admin=Depends(require_admin), session=Depends(get_db)):
+    """
+    Live figures for the admin dashboard, as JSON. The page asks for
+    them every few seconds, so the numbers and the 3D view follow the
+    stock changes made by staff without reloading the page.
+    """
+    branches = branch_summary(session)
+    return {"branches": branches,
+            "units": sum(branch["units"] for branch in branches)}
+
+
 # ---------- Error pages ----------
 
 @app.exception_handler(403)

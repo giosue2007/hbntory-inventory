@@ -259,9 +259,13 @@ def branches_of(session):
 def admin_users(request: Request, admin=Depends(require_admin),
                 session=Depends(get_db)):
     """
-    List every user with their role, branch and status.
+    List every user with their role, branch and status, grouped by
+    branch: the admin first, then Bordeaux, Lille, Lyon... (by name).
     """
-    users = session.query(User).order_by(User.id).all()
+    users = sorted(session.query(User).all(),
+                   key=lambda u: (u.role != ROLE_ADMIN,
+                                  u.branch.name if u.branch else "",
+                                  not u.is_active, u.username))
     return render(request, "users.html", {"user": admin, "users": users})
 
 

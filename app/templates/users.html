@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Utilisateurs{% endblock %}
 {% block content %}
+<style>tbody tr.group-start td { border-top: 2px solid var(--border); }</style>
 <div class="page-head">
   <div>
     <h1>Utilisateurs</h1>
@@ -11,11 +12,31 @@
   </div>
 </div>
 
-<div class="card table-card">
+<div class="card table-card" data-table>
+  <div class="toolbar">
+    <div class="chips" role="group" aria-label="Filtrer les comptes">
+      <button type="button" class="chip on" data-filter="all">Tous <span>{{ users|length }}</span></button>
+      <button type="button" class="chip" data-filter="staff">Employés actifs <span>{{ users|selectattr("role", "eq", "staff")|selectattr("is_active")|list|length }}</span></button>
+      <button type="button" class="chip" data-filter="admin">Administrateur <span>{{ users|selectattr("role", "eq", "admin")|selectattr("is_active")|list|length }}</span></button>
+      <button type="button" class="chip" data-filter="deleted">Supprimés <span>{{ users|rejectattr("is_active")|list|length }}</span></button>
+    </div>
+    <span class="count" data-count></span>
+  </div>
   <table>
-    <tr><th>Utilisateur</th><th>Rôle</th><th>Magasin</th><th>Statut</th><th></th></tr>
+    <thead>
+      <tr>
+        <th><button type="button" class="sort">Utilisateur</button></th>
+        <th><button type="button" class="sort">Rôle</button></th>
+        <th><button type="button" class="sort">Magasin</button></th>
+        <th>Statut</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
     {% for u in users %}
-    <tr>
+    {% set prev = loop.previtem %}
+    <tr data-status="{{ 'deleted' if not u.is_active else u.role }}"
+        class="{{ 'group-start' if prev and prev.branch != u.branch }}">
       <td><div class="who"><span class="avatar">{{ u.username[:2]|upper }}</span>{{ u.username }}</div></td>
       <td>{{ "Administrateur" if u.role == "admin" else "Employé" }}</td>
       <td>{{ u.branch.name if u.branch else "—" }}</td>
@@ -30,6 +51,8 @@
       </td>
     </tr>
     {% endfor %}
+    </tbody>
   </table>
+  <p class="empty" data-empty hidden>Aucun utilisateur ne correspond à la recherche.</p>
 </div>
 {% endblock %}

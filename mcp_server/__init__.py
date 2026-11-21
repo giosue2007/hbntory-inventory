@@ -1,0 +1,3 @@
+"""
+HBntory MCP server package.
+"""

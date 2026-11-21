@@ -24,8 +24,10 @@ from app.models import (ROLE_ADMIN, ROLE_STAFF, Branch, Stock,  # noqa: E402
                         User)
 from app.security import hash_password  # noqa: E402
 
-BRANCHES = ["Paris", "Lyon"]
-STAFF = {"paris_staff": "Paris", "lyon_staff": "Lyon"}
+BRANCHES = ["Paris", "Lyon", "Marseille", "Toulouse", "Bordeaux", "Lille"]
+STAFF = {"paris_staff": "Paris", "lyon_staff": "Lyon",
+         "marseille_staff": "Marseille", "toulouse_staff": "Toulouse",
+         "bordeaux_staff": "Bordeaux", "lille_staff": "Lille"}
 # product_id from the external Product API -> quantity per branch
 # (ids 1 to 16 are served by scripts/mock_product_api.py). Some lines are
 # at 0 or under 10 on purpose, to show "Rupture" and "Stock bas".
@@ -34,6 +36,14 @@ SAMPLE_STOCK = {
               "8": 15, "10": 0, "12": 22, "13": 40, "16": 3},
     "Lyon": {"1": 5, "2": 40, "4": 12, "6": 14, "8": 0, "9": 27, "11": 6,
              "14": 9, "15": 11, "16": 20},
+    "Marseille": {"1": 12, "3": 8, "6": 21, "7": 0, "9": 35, "10": 6,
+                  "13": 18, "14": 4},
+    "Toulouse": {"2": 22, "4": 9, "5": 14, "6": 0, "8": 11, "12": 30,
+                 "15": 7, "16": 16},
+    "Bordeaux": {"1": 3, "2": 17, "6": 26, "8": 5, "9": 0, "11": 13,
+                 "13": 24, "16": 9},
+    "Lille": {"3": 15, "4": 20, "6": 8, "7": 12, "10": 0, "12": 6,
+              "14": 11, "15": 19},
 }
 
 

@@ -7,7 +7,9 @@ Run it with:
 """
 import os
 import secrets
+from datetime import timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Form, HTTPException, Request
@@ -27,6 +29,10 @@ load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY") or secrets.token_hex(32)
 LOW_STOCK = 10
+try:
+    LOCAL_TZ = ZoneInfo(os.getenv("TIMEZONE", "Europe/Paris"))
+except ZoneInfoNotFoundError:
+    LOCAL_TZ = timezone.utc
 
 app = FastAPI(title="HBntory Backoffice")
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY,
@@ -108,14 +114,28 @@ def product_name(product_id):
     return product.get("name") or product.get("title") or "-"
 
 
+def local_time(value):
+    """
+    Show a date saved in UTC as local time, e.g. "21/11/2026 01:22".
+    """
+    if value is None:
+        return "—"
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+    return value.astimezone(LOCAL_TZ).strftime("%d/%m/%Y %H:%M")
+
+
 def branch_rows(session, branch_id):
     """
-    Stock lines of a branch, with product names from the Product API.
+    Stock lines of a branch, with product names from the Product API,
+    the date the product arrived in stock and its last movement.
     """
     lines = session.query(Stock).filter_by(
         branch_id=branch_id).order_by(Stock.product_id).all()
     return [{"product_id": line.product_id, "quantity": line.quantity,
-             "name": product_name(line.product_id)} for line in lines]
+             "name": product_name(line.product_id),
+             "arrived": local_time(line.created_at),
+             "updated": local_time(line.updated_at)} for line in lines]
 
 
 def branch_summary(session):

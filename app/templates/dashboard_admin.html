@@ -44,6 +44,55 @@
   </div>
 </div>
 
+{# 3D view of the stock: one column per branch, pure CSS (no library). #}
+<style>
+  @property --h { syntax: "<length>"; inherits: true; initial-value: 0px; }
+  .city3d { height: 330px; padding-top: 110px; display: flex; justify-content: center; align-items: center; perspective: 1200px; overflow: hidden; }
+  .plane { position: relative; width: {{ 90 * branches|length + 10 }}px; height: 100px; transform-style: preserve-3d;
+           transform: rotateX(58deg) rotateZ(-28deg);
+           background-image: linear-gradient(var(--border) 1px, transparent 1px),
+                             linear-gradient(90deg, var(--border) 1px, transparent 1px);
+           background-size: 50px 50px; background-color: var(--soft);
+           border: 1px solid var(--border); border-radius: 6px; }
+  .col { position: absolute; left: var(--x); top: var(--y); width: 50px; height: 50px;
+         transform-style: preserve-3d; --h: var(--target);
+         animation: grow 1.4s cubic-bezier(.2, .8, .2, 1) both; animation-delay: var(--delay); }
+  @keyframes grow { from { --h: 0px; } }
+  .col > i { position: absolute; display: block; }
+  .col .top { inset: 0; background: #3fb08f; transform: translateZ(var(--h)); }
+  .col .front { left: 0; right: 0; bottom: 0; height: var(--h); background: #1d6b57;
+                transform-origin: bottom; transform: rotateX(-90deg); }
+  .col .back { left: 0; right: 0; top: 0; height: var(--h); background: #1d6b57;
+               transform-origin: top; transform: rotateX(90deg); }
+  .col .east { top: 0; bottom: 0; right: 0; width: var(--h); background: #154f40;
+               transform-origin: right; transform: rotateY(90deg); }
+  .col .west { top: 0; bottom: 0; left: 0; width: var(--h); background: #154f40;
+               transform-origin: left; transform: rotateY(-90deg); }
+  .col .tag { left: 50%; top: 50%; width: 110px; margin-left: -55px; text-align: center;
+              font-size: 12px; line-height: 1.3; color: var(--text); white-space: nowrap;
+              transform: translateZ(calc(var(--h) + 10px)) rotateZ(28deg) rotateX(-58deg) translateY(-100%); }
+  .col .tag strong { display: block; font-size: 14px; }
+  @media (prefers-reduced-motion: reduce) { .col { animation: none; } }
+  @media (max-width: 860px) { .city3d { height: 240px; padding-top: 70px; } .plane { scale: .5; } }
+</style>
+<div class="card">
+  <div class="card-head">
+    <div><h2>Vue 3D du stock</h2><p>Une colonne par magasin : plus elle est haute, plus il y a d'unités.</p></div>
+  </div>
+  {% set top = branches|map(attribute="units")|max if branches else 0 %}
+  <div class="city3d" aria-hidden="true">
+    <div class="plane">
+      {% for b in branches %}
+      {% set h = ((b.units / top * 130) if top else 0)|round(1) %}
+      <div class="col" style="--x: {{ 25 + loop.index0 * 90 }}px; --y: 25px; --target: {{ h }}px; --delay: {{ loop.index0 * 0.12 }}s">
+        <i class="back"></i><i class="east"></i><i class="west"></i><i class="front"></i><i class="top"></i>
+        <i class="tag">{{ b.name }}<strong>{{ b.units }}</strong></i>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
 <div class="card table-card">
   <div class="card-head">
     <div><h2>Magasins</h2><p>Lecture seule : l'administrateur ne gère pas le stock.</p></div>

@@ -25,9 +25,16 @@ from app.models import (ROLE_ADMIN, ROLE_STAFF, Branch, Stock,  # noqa: E402
 from app.security import hash_password  # noqa: E402
 
 BRANCHES = ["Paris", "Lyon", "Marseille", "Toulouse", "Bordeaux", "Lille"]
+# username -> branch. All staff get the STAFF_PASSWORD password (hashed).
 STAFF = {"paris_staff": "Paris", "lyon_staff": "Lyon",
          "marseille_staff": "Marseille", "toulouse_staff": "Toulouse",
-         "bordeaux_staff": "Bordeaux", "lille_staff": "Lille"}
+         "bordeaux_staff": "Bordeaux", "lille_staff": "Lille",
+         "emma.martin": "Paris", "lucas.bernard": "Paris",
+         "chloe.dubois": "Lyon", "hugo.thomas": "Lyon",
+         "lea.robert": "Marseille", "nathan.richard": "Marseille",
+         "manon.petit": "Toulouse", "louis.durand": "Toulouse",
+         "camille.leroy": "Bordeaux", "jules.moreau": "Bordeaux",
+         "sarah.simon": "Lille", "adam.laurent": "Lille"}
 # product_id from the external Product API -> quantity per branch
 # (ids 1 to 16 are served by scripts/mock_product_api.py). Some lines are
 # at 0 or under 10 on purpose, to show "Rupture" and "Stock bas".
